@@ -7,6 +7,7 @@ use App\Models\FileActivityLog;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Events\FileStatusChanged;
 
 class FileController extends Controller
 {
@@ -70,6 +71,14 @@ class FileController extends Controller
                 'action' => 'claimed',
                 'description' => 'File claimed for editing',
             ]);
+            
+            // Broadcast the event
+            event(new FileStatusChanged(
+                $file,
+                'unclaimed',
+                'in_progress',
+                auth()->user()->name
+            ));
         }
         
         return redirect()->route('files.index', ['order_id' => $request->order_id])
@@ -77,27 +86,35 @@ class FileController extends Controller
     }
 
     public function markCompleted(File $file)
-    {
-        // Check if user is authorized to complete this file
-        if ($file->claimed_by !== auth()->id()) {
-            return redirect()->back()->with('error', 'You are not authorized to complete this file.');
-        }
-        
-        $file->update([
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
-        
-        // Log the activity
-        FileActivityLog::create([
-            'file_id' => $file->id,
-            'user_id' => auth()->id(),
-            'action' => 'completed',
-            'description' => 'File marked as completed',
-        ]);
-        
-        return redirect()->back()->with('success', 'File marked as completed.');
+{
+    // Check if user is authorized to complete this file
+    if ($file->claimed_by !== auth()->id()) {
+        return redirect()->back()->with('error', 'You are not authorized to complete this file.');
     }
+    
+    $file->update([
+        'status' => 'completed',
+        'completed_at' => now(),
+    ]);
+    
+    // Log the activity
+    FileActivityLog::create([
+        'file_id' => $file->id,
+        'user_id' => auth()->id(),
+        'action' => 'completed',
+        'description' => 'File marked as completed',
+    ]);
+    
+    // Broadcast the event
+    event(new FileStatusChanged(
+        $file,
+        'in_progress',
+        'completed',
+        auth()->user()->name
+    ));
+    
+    return redirect()->back()->with('success', 'File marked as completed.');
+}
 
     public function show(File $file)
     {
