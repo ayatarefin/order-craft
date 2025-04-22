@@ -21,6 +21,8 @@
         .sidebar {
             min-height: calc(100vh - 56px);
             background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
         }
         
         .main-content {
@@ -36,6 +38,21 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
+        
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 15px;
+        }
+        
+        .logout-btn-sidebar {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +61,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="{{ route('dashboard') }}">
-                    <i class="fas fa-tasks me-2"></i> Order Management
+                    <i class="fas fa-tasks me-2"></i> OrderCraft
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -75,16 +92,6 @@
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user me-1"></i> {{ Auth::user()->name }}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item">
-                                            <i class="fas fa-sign-out-alt me-1"></i> Logout
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -96,7 +103,27 @@
             <div class="row">
                 <!-- Sidebar -->
                 <div class="col-md-3 col-lg-2 sidebar py-3">
-                    <div class="list-group">
+                    <!-- User Info Section -->
+                    <div class="user-info">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-user-circle fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">{{ Auth::user()->name }}</h6>
+                                <small class="text-muted">
+                                    @if(auth()->user()->isAdmin())
+                                        Administrator
+                                    @else
+                                        Employee
+                                    @endif
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Menu -->
+                    <div class="list-group mb-4">
                         <a href="{{ route('dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                             <i class="fas fa-chart-line me-2"></i> Dashboard
                         </a>
@@ -112,6 +139,16 @@
                             <i class="fas fa-users me-2"></i> Users
                         </a>
                         @endif
+                    </div>
+                    
+                    <!-- Sidebar Footer with Logout -->
+                    <div class="sidebar-footer mt-auto">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-danger logout-btn-sidebar">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </button>
+                        </form>
                     </div>
                 </div>
                 
