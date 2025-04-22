@@ -35,4 +35,19 @@ class Order extends Model
     {
         return $this->hasMany(Folder::class)->whereNull('parent_id');
     }
+    public function updateStatusBasedOnFiles()
+    {
+        $total = $this->files()->count();
+        $completed = $this->files()->where('status', 'completed')->count();
+        $inProgress = $this->files()->where('status', 'in_progress')->count();
+        $unclaimed = $this->files()->where('status', 'unclaimed')->count();
+
+        if ($completed === $total) {
+            $this->update(['status' => 'completed']);
+        } elseif ($inProgress > 0) {
+            $this->update(['status' => 'in_progress']);
+        } elseif ($unclaimed === $total) {
+            $this->update(['status' => 'pending']);
+        }
+    }
 }

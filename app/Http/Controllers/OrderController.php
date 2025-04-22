@@ -28,38 +28,53 @@ class OrderController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'files' => 'required|file|mimes:zip',
+            'files.*' => 'required|mimes:jpeg,jpg,png,webp|max:10240', // each file max 10MB
         ]);
-
-        // Create order
+    
+        // Create the order
         $order = Order::create([
             'name' => $request->name,
             'description' => $request->description,
             'status' => 'pending',
             'created_by' => auth()->id(),
         ]);
-
-        // Process uploaded ZIP file
+    
+        // Create a root folder for this order (optional, for organization)
+        $rootFolder = Folder::create([
+            'name' => 'Root',
+            'path' => '/',
+            'order_id' => $order->id,
+            'parent_id' => null,
+        ]);
+    
+        // Process each uploaded image file
         if ($request->hasFile('files')) {
-            $zipFile = $request->file('files');
-            $tempPath = storage_path('app/temp') . '/' . Str::random(16);
-            
-            // Extract ZIP to temporary directory
-            $zip = new ZipArchive;
-            if ($zip->open($zipFile->path()) === TRUE) {
-                $zip->extractTo($tempPath);
-                $zip->close();
-                
-                // Create folder structure based on ZIP content
-                $this->processFolder($tempPath, null, $order);
-                
-                // Clean up temp directory
-                Storage::deleteDirectory('temp');
+            foreach ($request->file('files') as $file) {
+                $mime = $file->getMimeType();
+                $fileSize = $file->getSize();
+                $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
+                $originalName = $file->getClientOriginalName();
+                $relativePath = 'orders/' . $order->id . '/' . $fileName;
+    
+                // Store the file
+                Storage::putFileAs('public/orders/' . $order->id, $file, $fileName);
+    
+                // Save file record
+                File::create([
+                    'name' => $fileName,
+                    'original_name' => $originalName,
+                    'path' => 'orders/' . $order->id . '/' . $fileName,
+                    'mime_type' => $mime,
+                    'size' => $fileSize,
+                    'order_id' => $order->id,
+                    'folder_id' => $rootFolder->id,
+                    'status' => 'unclaimed',
+                ]);
             }
         }
-
+    
         return redirect()->route('orders.show', $order)
-            ->with('success', 'Order created successfully.');
+            ->with('success', 'Order created successfully with uploaded images.');
     }
 
     private function processFolder($path, $parentFolderId, $order)

@@ -79,6 +79,7 @@ class FileController extends Controller
                 'in_progress',
                 auth()->user()->name
             ));
+            $order->updateStatusBasedOnFiles();
         }
         
         return redirect()->route('files.index', ['order_id' => $request->order_id])
@@ -112,6 +113,7 @@ class FileController extends Controller
         'completed',
         auth()->user()->name
     ));
+    $file->order->updateStatusBasedOnFiles();
     
     return redirect()->back()->with('success', 'File marked as completed.');
 }

@@ -34,13 +34,13 @@
                 </div>
                 
                 <div class="mb-3">
-                    <label for="files" class="form-label">Upload Files (ZIP) <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control @error('files') is-invalid @enderror" id="files" name="files" accept=".zip" required>
-                    @error('files')
+                    <label for="files" class="form-label">Upload Images <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control @error('files.*') is-invalid @enderror" id="files" name="files[]" multiple accept=".jpg,.jpeg,.png,.webp" required>
+                    @error('files.*')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <small class="form-text text-muted">
-                        Upload a ZIP file containing all the image files organized in folders. The system will maintain your folder structure.
+                        You can select and upload multiple image files. Supported formats: JPEG, PNG, WebP.
                     </small>
                 </div>
                 
@@ -48,10 +48,9 @@
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Upload Instructions:</strong>
                     <ul class="mb-0 mt-2">
-                        <li>Create a ZIP file with your folder structure containing all image files that need editing.</li>
-                        <li>The system will extract and process all image files while preserving your folder structure.</li>
-                        <li>Supported file types: JPEG, PNG, GIF, PSD, AI, and other common image formats.</li>
-                        <li>Maximum file size: 500MB. For larger collections, please split them into multiple orders.</li>
+                        <li>Select multiple image files (JPEG, PNG, WebP) directly from your computer.</li>
+                        <li>The system will organize them automatically under a root folder.</li>
+                        <li>Maximum size per file: 10MB. Please avoid uploading unnecessary large files.</li>
                     </ul>
                 </div>
                 
