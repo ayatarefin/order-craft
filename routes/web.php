@@ -19,25 +19,15 @@ Route::get('/', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-    
-    // Registration routes
-    // Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    // Route::post('/register', [RegisteredUserController::class, 'store']);
-    
-    // Password reset routes
-    // Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    // Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    // Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    // Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
     // Logout route
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Orders
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{order}/download', [OrderController::class, 'downloadCompleted'])->name('orders.download');
@@ -46,10 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
 
 
-    
+
     // Folders
     Route::get('/folders/{folder}', [FolderController::class, 'show'])->name('folders.show');
-    
+
     // Files
     Route::get('/files', [FileController::class, 'index'])->name('files.index');
     Route::get('/files/{file}', [FileController::class, 'show'])->name('files.show');
@@ -57,12 +47,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/files/{file}', [FileController::class, 'update'])->name('files.update');
     Route::post('/files/claim-batch', [FileController::class, 'claimBatch'])->name('files.claim-batch');
     Route::put('/files/{file}/complete', [FileController::class, 'markCompleted'])->name('files.complete');
-    Route::get('/files/{file}/open-in-editor', [FileController::class, 'openInEditor'])->name('files.open-in-editor');
     Route::get('/files/{file}/download', [FileController::class, 'download'])->name('files.download');
     Route::get('/files/{file}/employee-download', [FileController::class, 'employeeDownload'])->name('files.download.employee');
+    // Show the in-browser in app
+    Route::get('/files/{file}/edit-online', [FileController::class, 'editOnline'])->name('files.edit-online');
+    Route::post('/files/{file}/photopea-save', [FileController::class, 'saveFromPhotopea'])->name('files.photopea.save');
 
 
-    
+
     // Users (Admin only)
     Route::middleware(['admin'])->group(function () {
         Route::resource('users', UserController::class);
@@ -75,4 +67,7 @@ Route::middleware('auth')->group(function () {
             'total' => $order->files()->count(),
         ]);
     });
+});
+Route::get('/phpinfo', function () {
+    phpinfo();
 });

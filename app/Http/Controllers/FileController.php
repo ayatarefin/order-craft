@@ -175,45 +175,33 @@ class FileController extends Controller
             ->with('success', 'File updated successfully.');
     }
 
-    public function openInEditor(File $file)
+    public function editOnline(File $file)
     {
-        // Check if user is authorized to edit this file
-        if ($file->claimed_by !== auth()->id()) {
-            return redirect()->back()->with('error', 'You are not authorized to edit this file.');
+        // Only claimant or admin may edit
+        if ($file->claimed_by !== auth()->id() && !auth()->user()->isAdmin()) {
+            return redirect()->back()->with('error', 'Not authorized.');
         }
-
-        // Generate a full URL to the file
-        $fileUrl = asset('storage/' . $file->path);
-
-        // Determine which editor to use based on mime type
-        $editorProtocol = '';
-        if (
-            strpos($file->mime_type, 'image/vnd.adobe.photoshop') !== false ||
-            in_array(pathinfo($file->original_name, PATHINFO_EXTENSION), ['psd'])
-        ) {
-            $editorProtocol = 'photoshop://open?file=';
-        } elseif (
-            strpos($file->mime_type, 'application/illustrator') !== false ||
-            in_array(pathinfo($file->original_name, PATHINFO_EXTENSION), ['ai'])
-        ) {
-            $editorProtocol = 'illustrator://open?file=';
-        } else {
-            // Default to Photoshop for other image types
-            $editorProtocol = 'photoshop://open?file=';
-        }
-
-        // Log the activity
-        FileActivityLog::create([
-            'file_id' => $file->id,
-            'user_id' => auth()->id(),
-            'action' => 'opened',
-            'description' => 'File opened in editor',
-        ]);
-
-        // Redirect to editor protocol URL
-        return redirect($editorProtocol . urlencode($fileUrl));
+        return view('files.edit-online', compact('file'));
     }
 
+    public function saveFromPhotopea(Request $request, File $file)
+    {
+        // Photopea sends: first ~2000 bytes JSON, then raw image bytes :contentReference[oaicite:4]{index=4}
+        $stream = fopen('php://input', 'rb');
+        $json   = fread($stream, 2000);
+        $meta   = json_decode($json, true);
+        $ver    = collect($meta['versions'])->firstWhere('format', 'psd');
+        fseek($stream, strlen($json) + $ver['start']);
+        $data   = fread($stream, $ver['size']);
+        fclose($stream);
+
+        // Overwrite the stored file
+        $path = 'orders/' . $file->order_id . '/edited_' . $file->original_name;
+        Storage::disk('public')->put($path, $data);
+        $file->update(['path' => $path, 'status' => 'in_progress']);
+
+        return response()->json(['message' => 'Saved successfully']);
+    }
     public function download(File $file)
     {
         // Only allow admin users
@@ -236,7 +224,7 @@ class FileController extends Controller
         return response()->download($filePath, $file->original_name);
     }
     public function employeeDownload(File $file)
-{
-    return Storage::disk('public')->download($file->path, $file->original_name);
-}
+    {
+        return Storage::disk('public')->download($file->path, $file->original_name);
+    }
 }

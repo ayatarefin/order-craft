@@ -113,7 +113,7 @@
                                                 <a href="{{ route('files.edit', $file) }}" class="btn btn-sm btn-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{{ route('files.open-in-editor', $file) }}" class="btn btn-sm btn-primary" title="Open in Editor">
+                                                <a href="{{ route('files.edit-online', $file) }}" class="btn btn-sm btn-primary" title="Open in Editor">
                                                     <i class="fas fa-external-link-alt"></i>
                                                 </a>
                                                 <form action="{{ route('files.complete', $file) }}" method="POST" class="d-inline">

@@ -20,8 +20,8 @@
                 <a href="{{ route('files.download.employee', $file) }}" class="btn btn-info">
                     <i class="fas fa-download me-1"></i> Download
                 </a>
-                <a href="{{ route('files.open-in-editor', $file) }}" class="btn btn-primary">
-                    <i class="fas fa-external-link-alt me-1"></i> Open in Editor
+                <a href="{{ route('files.edit-online', $file) }}" class="btn btn-sm btn-outline-info" title="Edit Online">
+                    <i class="fas fa-external-link-alt"></i>
                 </a>
                 @if($file->status !== 'completed')
                 <form action="{{ route('files.complete', $file) }}" method="POST" class="d-inline">

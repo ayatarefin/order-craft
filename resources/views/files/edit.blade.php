@@ -8,7 +8,7 @@
             <a href="{{ route('files.show', $file) }}" class="btn btn-secondary me-2">
                 <i class="fas fa-arrow-left me-1"></i> Back to File
             </a>
-            <a href="{{ route('files.open-in-editor', $file) }}" class="btn btn-primary">
+            <a href="{{ route('files.edit-online', $file) }}" class="btn btn-primary">
                 <i class="fas fa-external-link-alt me-1"></i> Open in Editor
             </a>
         </div>
@@ -82,7 +82,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('files.open-in-editor', $file) }}" class="btn btn-info">
+                        <a href="{{ route('files.edit-online', $file) }}" class="btn btn-info">
                             <i class="fas fa-external-link-alt me-1"></i> Open in External Editor
                         </a>
                         
