@@ -21,14 +21,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
     
     // Registration routes
-    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store']);
+    // Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    // Route::post('/register', [RegisteredUserController::class, 'store']);
     
     // Password reset routes
-    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
+    // Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    // Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    // Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    // Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
@@ -41,6 +41,11 @@ Route::middleware('auth')->group(function () {
     // Orders
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{order}/download', [OrderController::class, 'downloadCompleted'])->name('orders.download');
+    Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
+    Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
+
     
     // Folders
     Route::get('/folders/{folder}', [FolderController::class, 'show'])->name('folders.show');
@@ -53,6 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/files/claim-batch', [FileController::class, 'claimBatch'])->name('files.claim-batch');
     Route::put('/files/{file}/complete', [FileController::class, 'markCompleted'])->name('files.complete');
     Route::get('/files/{file}/open-in-editor', [FileController::class, 'openInEditor'])->name('files.open-in-editor');
+    Route::get('/files/{file}/download', [FileController::class, 'download'])->name('files.download');
+    Route::get('/files/{file}/employee-download', [FileController::class, 'employeeDownload'])->name('files.download.employee');
+
+
     
     // Users (Admin only)
     Route::middleware(['admin'])->group(function () {

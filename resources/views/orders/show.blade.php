@@ -15,7 +15,7 @@
             @endif
         </div>
     </div>
-    
+
     <div class="row mb-4">
         <!-- Order Details -->
         <div class="col-md-4">
@@ -27,20 +27,20 @@
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Order ID:</dt>
                         <dd class="col-sm-8">#{{ $order->id }}</dd>
-                        
+
                         <dt class="col-sm-4">Status:</dt>
                         <dd class="col-sm-8">
                             <span class="badge bg-{{ $order->status === 'completed' ? 'success' : ($order->status === 'in_progress' ? 'warning' : 'secondary') }}">
                                 {{ ucfirst(str_replace('_', ' ', $order->status)) }}
                             </span>
                         </dd>
-                        
+
                         <dt class="col-sm-4">Created By:</dt>
                         <dd class="col-sm-8">{{ $order->creator->name }}</dd>
-                        
+
                         <dt class="col-sm-4">Created At:</dt>
                         <dd class="col-sm-8">{{ $order->created_at->format('M d, Y H:i') }}</dd>
-                        
+
                         <dt class="col-sm-4">Description:</dt>
                         <dd class="col-sm-8">{{ $order->description ?? 'No description' }}</dd>
                     </dl>
@@ -61,7 +61,7 @@
                 @endif
             </div>
         </div>
-        
+
         <!-- Order Progress -->
         <div class="col-md-8">
             <div class="card">
@@ -95,31 +95,31 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="progress mb-3" style="height: 25px;">
-                        <div class="progress-bar bg-secondary" role="progressbar" 
-                             style="width: {{ $totalFiles > 0 ? ($unclaimedFiles / $totalFiles) * 100 : 0 }}%" 
-                             aria-valuenow="{{ $totalFiles > 0 ? ($unclaimedFiles / $totalFiles) * 100 : 0 }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
+                        <div class="progress-bar bg-secondary" role="progressbar"
+                            style="width: {{ $totalFiles > 0 ? ($unclaimedFiles / $totalFiles) * 100 : 0 }}%"
+                            aria-valuenow="{{ $totalFiles > 0 ? ($unclaimedFiles / $totalFiles) * 100 : 0 }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
                             {{ $totalFiles > 0 ? round(($unclaimedFiles / $totalFiles) * 100) : 0 }}% Unclaimed
                         </div>
-                        <div class="progress-bar bg-warning" role="progressbar" 
-                             style="width: {{ $totalFiles > 0 ? ($inProgressFiles / $totalFiles) * 100 : 0 }}%" 
-                             aria-valuenow="{{ $totalFiles > 0 ? ($inProgressFiles / $totalFiles) * 100 : 0 }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
+                        <div class="progress-bar bg-warning" role="progressbar"
+                            style="width: {{ $totalFiles > 0 ? ($inProgressFiles / $totalFiles) * 100 : 0 }}%"
+                            aria-valuenow="{{ $totalFiles > 0 ? ($inProgressFiles / $totalFiles) * 100 : 0 }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
                             {{ $totalFiles > 0 ? round(($inProgressFiles / $totalFiles) * 100) : 0 }}% In Progress
                         </div>
-                        <div class="progress-bar bg-success" role="progressbar" 
-                             style="width: {{ $totalFiles > 0 ? ($completedFiles / $totalFiles) * 100 : 0 }}%" 
-                             aria-valuenow="{{ $totalFiles > 0 ? ($completedFiles / $totalFiles) * 100 : 0 }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
+                        <div class="progress-bar bg-success" role="progressbar"
+                            style="width: {{ $totalFiles > 0 ? ($completedFiles / $totalFiles) * 100 : 0 }}%"
+                            aria-valuenow="{{ $totalFiles > 0 ? ($completedFiles / $totalFiles) * 100 : 0 }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
                             {{ $totalFiles > 0 ? round(($completedFiles / $totalFiles) * 100) : 0 }}% Completed
                         </div>
                     </div>
-                    
+
                     @if(!auth()->user()->isAdmin() && $unclaimedFiles > 0)
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#claimFilesModal" data-order-id="{{ $order->id }}">
@@ -131,7 +131,7 @@
             </div>
         </div>
     </div>
-    
+
     @if(auth()->user()->isAdmin() && $employeeProgress->count() > 0)
     <!-- Employee Progress -->
     <div class="row mb-4">
@@ -161,11 +161,11 @@
                                     <td>{{ $employee->claimed_count > 0 ? round(($employee->completed_count / $employee->claimed_count) * 100) : 0 }}%</td>
                                     <td>
                                         <div class="progress" style="height: 20px;">
-                                            <div class="progress-bar bg-success" role="progressbar" 
-                                                 style="width: {{ $employee->claimed_count > 0 ? ($employee->completed_count / $employee->claimed_count) * 100 : 0 }}%" 
-                                                 aria-valuenow="{{ $employee->claimed_count > 0 ? ($employee->completed_count / $employee->claimed_count) * 100 : 0 }}" 
-                                                 aria-valuemin="0" 
-                                                 aria-valuemax="100">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                style="width: {{ $employee->claimed_count > 0 ? ($employee->completed_count / $employee->claimed_count) * 100 : 0 }}%"
+                                                aria-valuenow="{{ $employee->claimed_count > 0 ? ($employee->completed_count / $employee->claimed_count) * 100 : 0 }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
                                                 {{ $employee->claimed_count > 0 ? round(($employee->completed_count / $employee->claimed_count) * 100) : 0 }}%
                                             </div>
                                         </div>
@@ -180,7 +180,7 @@
         </div>
     </div>
     @endif
-    
+
     <!-- File Browser -->
     <div class="row">
         <div class="col-12">
@@ -190,94 +190,103 @@
                 </div>
                 <div class="card-body">
                     @if($rootFolders->count() > 0 || $order->files()->whereNull('folder_id')->exists())
-                        <div class="row">
-                            <!-- Folder Navigation -->
-                            <div class="col-md-4 mb-4">
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">Folders</h6>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="list-group list-group-flush">
-                                            @foreach($rootFolders as $folder)
-                                                <a href="{{ route('folders.show', $folder) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <i class="fas fa-folder me-2 text-warning"></i> {{ $folder->name }}
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">
-                                                        {{ $folder->files->count() + $folder->children->sum(function($child) { return $child->files->count(); }) }}
-                                                    </span>
-                                                </a>
-                                            @endforeach
-                                            
-                                            @if($order->files()->whereNull('folder_id')->exists())
-                                                <a href="{{ route('files.index', ['order_id' => $order->id, 'folder_id' => 0]) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <i class="fas fa-file-image me-2 text-info"></i> Root Files
-                                                    </div>
-                                                    <span class="badge bg-primary rounded-pill">
-                                                        {{ $order->files()->whereNull('folder_id')->count() }}
-                                                    </span>
-                                                </a>
-                                            @endif
-                                        </div>
+                    <div class="row">
+                        <!-- Folder Navigation -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Folders</h6>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        @foreach($rootFolders as $folder)
+                                        <a href="{{ route('folders.show', $folder) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-folder me-2 text-warning"></i> {{ $folder->name }}
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">
+                                                {{ $folder->files->count() + $folder->children->sum(function($child) { return $child->files->count(); }) }}
+                                            </span>
+                                        </a>
+                                        @endforeach
+
+                                        @if($order->files()->whereNull('folder_id')->exists())
+                                        <a href="{{ route('files.index', ['order_id' => $order->id, 'folder_id' => 0]) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-file-image me-2 text-info"></i> Root Files
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">
+                                                {{ $order->files()->whereNull('folder_id')->count() }}
+                                            </span>
+                                        </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Recent Files -->
-                            <div class="col-md-8">
-                                <h6 class="mb-3">Recent Files</h6>
-                                <div class="row" id="files-container">
-                                    @php $recentFiles = $order->files()->latest()->limit(8)->get(); @endphp
-                                    @foreach($recentFiles as $file)
-                                        <div class="col-md-3 mb-4">
-                                            <div class="card file-card h-100 {{ $file->status === 'completed' ? 'border-success' : ($file->status === 'in_progress' ? 'border-warning' : '') }}" data-file-id="{{ $file->id }}">
-                                                <div class="position-relative">
-                                                    <img src="{{ asset('storage/' . $file->path) }}" class="card-img-top" alt="{{ $file->original_name }}" style="height: 120px; object-fit: cover;">
-                                                    <div class="position-absolute top-0 end-0 p-2">
-                                                        <span class="badge bg-{{ $file->status === 'completed' ? 'success' : ($file->status === 'in_progress' ? 'warning' : 'secondary') }}">
-                                                            {{ ucfirst($file->status) }}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body p-2">
-                                                    <h6 class="card-title text-truncate" title="{{ $file->original_name }}">
-                                                        {{ $file->original_name }}
-                                                    </h6>
-                                                    <p class="card-text small mb-0">
-                                                        <i class="fas fa-folder me-1 text-muted"></i> 
-                                                        {{ $file->folder ? $file->folder->name : 'Root' }}
-                                                    </p>
-                                                    @if($file->claimed_by)
-                                                        <p class="card-text small mb-0">
-                                                            <i class="fas fa-user me-1 text-muted"></i> 
-                                                            {{ $file->claimedByUser->name }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                                <div class="card-footer bg-white p-2">
-                                                    <a href="{{ route('files.show', $file) }}" class="btn btn-sm btn-outline-primary w-100">
-                                                        <i class="fas fa-eye me-1"></i> View
-                                                    </a>
-                                                </div>
+                        </div>
+
+                        <!-- Recent Files -->
+                        <div class="col-md-8">
+                            <h6 class="mb-3">Recent Files</h6>
+                            <div class="row" id="files-container">
+                                @php $recentFiles = $order->files()->latest()->limit(8)->get(); @endphp
+                                @foreach($recentFiles as $file)
+                                <div class="col-md-3 mb-4">
+                                    <div class="card file-card h-100 {{ $file->status === 'completed' ? 'border-success' : ($file->status === 'in_progress' ? 'border-warning' : '') }}" data-file-id="{{ $file->id }}">
+                                        <div class="position-relative">
+                                            <img src="{{ asset('storage/' . $file->path) }}" class="card-img-top" alt="{{ $file->original_name }}" style="height: 120px; object-fit: cover;">
+                                            <div class="position-absolute top-0 end-0 p-2">
+                                                <span class="badge bg-{{ $file->status === 'completed' ? 'success' : ($file->status === 'in_progress' ? 'warning' : 'secondary') }}">
+                                                    {{ ucfirst($file->status) }}
+                                                </span>
                                             </div>
                                         </div>
-                                    @endforeach
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title text-truncate" title="{{ $file->original_name }}">
+                                                {{ $file->original_name }}
+                                            </h6>
+                                            <p class="card-text small mb-0">
+                                                <i class="fas fa-folder me-1 text-muted"></i>
+                                                {{ $file->folder ? $file->folder->name : 'Root' }}
+                                            </p>
+                                            @if($file->claimed_by)
+                                            <p class="card-text small mb-0">
+                                                <i class="fas fa-user me-1 text-muted"></i>
+                                                {{ $file->claimedByUser->name }}
+                                            </p>
+                                            @endif
+                                        </div>
+                                        <div class="card-footer bg-white p-2">
+                                            <div class="d-grid gap-1">
+                                                <a href="{{ route('files.show', $file) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i> View
+                                                </a>
+
+                                                @if(auth()->user()->isAdmin() && $file->isCompleted())
+                                                <a href="{{ route('files.download', $file->id) }}" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
-                                    <a href="{{ route('files.index', ['order_id' => $order->id]) }}" class="btn btn-outline-primary">
-                                        <i class="fas fa-search me-1"></i> Browse All Files
-                                    </a>
-                                </div>
+                                @endforeach
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-2">
+                                <a href="{{ route('files.index', ['order_id' => $order->id]) }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-search me-1"></i> Browse All Files
+                                </a>
                             </div>
                         </div>
+
+                    </div>
                     @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
-                            <h5>No files found in this order</h5>
-                        </div>
+                    <div class="text-center py-5">
+                        <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
+                        <h5>No files found in this order</h5>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -317,6 +326,10 @@
 
 @section('scripts')
 <script>
-    window.orderId = {{ $order->id }};
+    window.orderId = {
+        {
+            $order - > id
+        }
+    };
 </script>
 @endsection

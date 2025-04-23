@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use App\Models\Order;
 use App\Models\File;
@@ -30,7 +31,7 @@ class OrderController extends Controller
             'description' => 'nullable|string',
             'files.*' => 'required|mimes:jpeg,jpg,png,webp|max:10240', // each file max 10MB
         ]);
-    
+
         // Create the order
         $order = Order::create([
             'name' => $request->name,
@@ -38,7 +39,7 @@ class OrderController extends Controller
             'status' => 'pending',
             'created_by' => auth()->id(),
         ]);
-    
+
         // Create a root folder for this order (optional, for organization)
         $rootFolder = Folder::create([
             'name' => 'Root',
@@ -46,7 +47,7 @@ class OrderController extends Controller
             'order_id' => $order->id,
             'parent_id' => null,
         ]);
-    
+
         // Process each uploaded image file
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
@@ -55,10 +56,9 @@ class OrderController extends Controller
                 $fileName = Str::random(40) . '.' . $file->getClientOriginalExtension();
                 $originalName = $file->getClientOriginalName();
                 $relativePath = 'orders/' . $order->id . '/' . $fileName;
-    
                 // Store the file
-                Storage::putFileAs('public/orders/' . $order->id, $file, $fileName);
-    
+                Storage::disk('public')->putFileAs('orders/' . $order->id, $file, $fileName);
+
                 // Save file record
                 File::create([
                     'name' => $fileName,
@@ -72,7 +72,7 @@ class OrderController extends Controller
                 ]);
             }
         }
-    
+
         return redirect()->route('orders.show', $order)
             ->with('success', 'Order created successfully with uploaded images.');
     }
@@ -80,7 +80,7 @@ class OrderController extends Controller
     private function processFolder($path, $parentFolderId, $order)
     {
         $dirName = basename($path);
-        
+
         // Create folder in database if it's not the root temp folder
         $folder = null;
         if (strpos($path, 'temp/') !== false && $dirName !== basename(storage_path('app/temp'))) {
@@ -91,16 +91,16 @@ class OrderController extends Controller
                 'parent_id' => $parentFolderId,
             ]);
         }
-        
+
         $folderId = $folder ? $folder->id : $parentFolderId;
-        
+
         // Process all files in this directory
         $files = scandir($path);
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') continue;
-            
+
             $filePath = $path . '/' . $file;
-            
+
             if (is_dir($filePath)) {
                 // Recursively process subdirectories
                 $this->processFolder($filePath, $folderId, $order);
@@ -112,10 +112,10 @@ class OrderController extends Controller
                     $fileSize = filesize($filePath);
                     $fileName = Str::random(40) . '.' . pathinfo($file, PATHINFO_EXTENSION);
                     $relativePath = 'orders/' . $order->id . '/' . $fileName;
-                    
-                    // Move file to storage
-                    Storage::put('public/' . $relativePath, file_get_contents($filePath));
-                    
+
+                    // In processFolder() method
+                    Storage::disk('public')->put($relativePath, file_get_contents($filePath));
+
                     // Create file record in database
                     File::create([
                         'name' => $fileName,
@@ -139,58 +139,109 @@ class OrderController extends Controller
         $inProgressFiles = $order->files()->where('status', 'in_progress')->count();
         $completedFiles = $order->files()->where('status', 'completed')->count();
         $totalFiles = $order->files()->count();
-        
-        $employeeProgress = User::whereHas('claimedFiles', function($query) use ($order) {
+
+        $employeeProgress = User::whereHas('claimedFiles', function ($query) use ($order) {
             $query->where('order_id', $order->id);
         })->withCount([
-            'claimedFiles as claimed_count' => function($query) use ($order) {
+            'claimedFiles as claimed_count' => function ($query) use ($order) {
                 $query->where('order_id', $order->id);
             },
-            'claimedFiles as completed_count' => function($query) use ($order) {
+            'claimedFiles as completed_count' => function ($query) use ($order) {
                 $query->where('order_id', $order->id)->where('status', 'completed');
             }
         ])->get();
-        
+
         return view('orders.show', compact(
-            'order', 
-            'rootFolders', 
-            'unclaimedFiles', 
-            'inProgressFiles', 
-            'completedFiles', 
+            'order',
+            'rootFolders',
+            'unclaimedFiles',
+            'inProgressFiles',
+            'completedFiles',
             'totalFiles',
             'employeeProgress'
         ));
     }
 
+    public function edit(Order $order)
+    {
+        return view('orders.edit', compact('order'));
+    }
+
+    public function update(Request $request, Order $order)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $order->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+
+        return redirect()->route('orders.show', $order)->with('success', 'Order updated successfully.');
+    }
+
+    public function destroy(Order $order)
+    {
+        // Optional: delete related folders/files from database
+        foreach ($order->files as $file) {
+            // Delete file from storage
+            Storage::disk('public')->delete($file->path);
+            $file->delete();
+        }
+
+        foreach ($order->folders as $folder) {
+            $folder->delete();
+        }
+
+        $order->delete();
+
+        return redirect()->route('orders.index')->with('success', 'Order deleted successfully.');
+    }
+
     public function downloadCompleted(Order $order)
     {
-        // Create a ZIP with the completed files in their original structure
         $zipName = 'order_' . $order->id . '_completed.zip';
         $zipPath = storage_path('app/temp/' . $zipName);
-        
-        $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-            $completedFiles = $order->files()->where('status', 'completed')->get();
-            
-            foreach ($completedFiles as $file) {
-                $filePath = storage_path('app/public/' . $file->path);
-                
-                // Get relative path based on folder structure
-                $relativePath = '';
-                $currentFolder = $file->folder;
-                
-                while ($currentFolder) {
-                    $relativePath = $currentFolder->name . '/' . $relativePath;
-                    $currentFolder = $currentFolder->parent;
-                }
-                
-                $zip->addFile($filePath, $relativePath . $file->original_name);
-            }
-            
-            $zip->close();
-            return response()->download($zipPath)->deleteFileAfterSend(true);
+
+        // Ensure temp directory exists
+        if (!file_exists(dirname($zipPath))) {
+            mkdir(dirname($zipPath), 0775, true);
         }
-        
-        return redirect()->back()->with('error', 'Could not create ZIP file.');
+
+        $zip = new ZipArchive;
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+            \Log::error("Failed to open zip file at $zipPath");
+            return redirect()->back()->with('error', 'Could not create ZIP file.');
+        }
+
+        $completedFiles = $order->files()->where('status', 'completed')->get();
+
+        if ($completedFiles->isEmpty()) {
+            return redirect()->back()->with('error', 'No completed files found.');
+        }
+
+        foreach ($completedFiles as $file) {
+            $filePath = storage_path('app/public/' . $file->path);
+
+            if (!file_exists($filePath)) {
+                \Log::warning("File not found: $filePath");
+                continue;
+            }
+
+            $relativePath = '';
+            $currentFolder = $file->folder;
+            while ($currentFolder) {
+                $relativePath = $currentFolder->name . '/' . $relativePath;
+                $currentFolder = $currentFolder->parent;
+            }
+
+            $zip->addFile($filePath, $relativePath . $file->original_name);
+        }
+
+        $zip->close();
+
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 }
