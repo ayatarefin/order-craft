@@ -50,7 +50,10 @@ php artisan key:generate
 php artisan migrate
 php artisan db:seed --class=AdminSeeder
 
-### 5. Start the App
+### 5. Create Storage Symlink
+php artisan storage:link
+
+### 6. Start the App
 php artisan serve
 
 ### Default Admin Account (after seeder)
