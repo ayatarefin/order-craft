@@ -7,9 +7,6 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\NewPasswordController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -49,7 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/files/{file}/complete', [FileController::class, 'markCompleted'])->name('files.complete');
     Route::get('/files/{file}/download', [FileController::class, 'download'])->name('files.download');
     Route::get('/files/{file}/employee-download', [FileController::class, 'employeeDownload'])->name('files.download.employee');
-    // Show the in-browser in app
+    // Show the photopea app in the web
     Route::get('/files/{file}/edit-online', [FileController::class, 'editOnline'])->name('files.edit-online');
     Route::post('/files/{file}/photopea-save', [FileController::class, 'saveFromPhotopea'])->name('files.photopea.save');
 

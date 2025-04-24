@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Check if the column doesn't exist before adding it
         if (!Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->enum('role', ['admin', 'employee_1', 'employee_2'])->default('employee_1');

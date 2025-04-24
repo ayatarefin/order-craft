@@ -40,7 +40,7 @@ class OrderController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        // Create a root folder for this order (optional, for organization)
+        // Create a root folder for this order
         $rootFolder = Folder::create([
             'name' => 'Root',
             'path' => '/',
@@ -113,7 +113,7 @@ class OrderController extends Controller
                     $fileName = Str::random(40) . '.' . pathinfo($file, PATHINFO_EXTENSION);
                     $relativePath = 'orders/' . $order->id . '/' . $fileName;
 
-                    // In processFolder() method
+                    // In processFolder
                     Storage::disk('public')->put($relativePath, file_get_contents($filePath));
 
                     // Create file record in database
